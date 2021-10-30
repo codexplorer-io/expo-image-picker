@@ -1,0 +1,14 @@
+{
+  "name": "@codexporer.io/expo-image-picker",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "peerDependencies": {
+    "react": "*",
+    "react-dom": "*",
+    "react-magnetic-di": "*",
+    "react-native": "*",
+    "react-native-paper": "*",
+    "expo-image-picker": "*",
+    "@codexporer.io/react-test-utils": "*"
+  }
+}

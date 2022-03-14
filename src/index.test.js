@@ -251,7 +251,7 @@ describe('useImagePicker', () => {
             expect(wrapper.find('Dialog').prop('visible')).toBe(true);
             // eslint-disable-next-line lodash/prefer-lodash-method
             expect(wrapper.find('DialogContent').find('Paragraph').prop('children')).toBe(
-                'Selecting a media file from the libabry requires media library access. Try to select media file from the library again and allow application to access your media library.'
+                'Selecting a media file from the library requires media library access. Try to select media file from the library again and allow application to access your media library.'
             );
             expect(ImagePicker.launchImageLibraryAsync).not.toHaveBeenCalled();
         });
@@ -279,7 +279,7 @@ describe('useImagePicker', () => {
             expect(wrapper.find('Dialog').prop('visible')).toBe(true);
             // eslint-disable-next-line lodash/prefer-lodash-method
             expect(wrapper.find('DialogContent').find('Paragraph').prop('children')).toBe(
-                'Selecting a media file from the libabry requires media library access. Allow aplication to access the media library in phone settings and select media file afterwards.'
+                'Selecting a media file from the library requires media library access. Allow aplication to access the media library in phone settings and select media file afterwards.'
             );
             expect(ImagePicker.launchImageLibraryAsync).not.toHaveBeenCalled();
         });
@@ -491,7 +491,7 @@ describe('useImagePicker', () => {
             expect(wrapper.find('Dialog').prop('visible')).toBe(true);
             // eslint-disable-next-line lodash/prefer-lodash-method
             expect(wrapper.find('DialogContent').find('Paragraph').prop('children')).toBe(
-                'Selecting a media file from the libabry requires media library access. Try to select media file from the library again and allow application to access your media library.'
+                'Selecting a media file from the library requires media library access. Try to select media file from the library again and allow application to access your media library.'
             );
             expect(ImagePicker.requestCameraPermissionsAsync).not.toHaveBeenCalled();
         });
@@ -519,7 +519,7 @@ describe('useImagePicker', () => {
             expect(wrapper.find('Dialog').prop('visible')).toBe(true);
             // eslint-disable-next-line lodash/prefer-lodash-method
             expect(wrapper.find('DialogContent').find('Paragraph').prop('children')).toBe(
-                'Selecting a media file from the libabry requires media library access. Allow aplication to access the media library in phone settings and select media file afterwards.'
+                'Selecting a media file from the library requires media library access. Allow aplication to access the media library in phone settings and select media file afterwards.'
             );
             expect(ImagePicker.requestCameraPermissionsAsync).not.toHaveBeenCalled();
         });

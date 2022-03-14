@@ -45,8 +45,8 @@ export const useImagePicker = ({
             <Paragraph>
                 {
                     canAskAgain ?
-                        'Selecting a media file from the libabry requires media library access. Try to select media file from the library again and allow application to access your media library.' :
-                        'Selecting a media file from the libabry requires media library access. Allow aplication to access the media library in phone settings and select media file afterwards.'
+                        'Selecting a media file from the library requires media library access. Try to select media file from the library again and allow application to access your media library.' :
+                        'Selecting a media file from the library requires media library access. Allow aplication to access the media library in phone settings and select media file afterwards.'
                 }
             </Paragraph>
         );

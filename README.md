@@ -9,6 +9,9 @@ iOS|Android|Web|
 ## Samples
 <img title="video" src="https://github.com/codexplorer-io/expo-image-picker/blob/main/samples/video.gif?raw=true">
 
+## Prerequisites
+Module requires installation and setup of https://github.com/codexplorer-io/expo-loading-dialog within the project.
+
 ## Usage
 ```javascript
 import { useImagePicker } from '@codexporer.io/expo-image-picker';

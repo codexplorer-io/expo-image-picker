@@ -9,6 +9,8 @@
     "react-native": "*",
     "react-native-paper": "*",
     "expo-image-picker": "*",
-    "@codexporer.io/react-test-utils": "*"
+    "@codexporer.io/react-test-utils": "*",
+    "@codexporer.io/expo-device": "*",
+    "@codexporer.io/expo-loading-dialog": "*"
   }
 }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { di } from 'react-magnetic-di';
 import * as ImagePicker from 'expo-image-picker';
-import { Platform } from 'react-native';
+import { OS } from '@codexporer.io/expo-device';
+import { useLoadingDialogActions } from '@codexporer.io/expo-loading-dialog';
 import {
     Dialog,
     Button,
@@ -23,10 +24,21 @@ export const useImagePicker = ({
     videoExportPreset,
     onPick
 }) => {
-    di(Button, Dialog, DialogActions, DialogContent, DialogTitle, Paragraph, Portal, useState);
+    di(
+        Button,
+        Dialog,
+        DialogActions,
+        DialogContent,
+        DialogTitle,
+        Paragraph,
+        Portal,
+        useLoadingDialogActions,
+        useState
+    );
 
     const [isPermissionsDialogVisible, setIsPermissionsDialogVisible] = useState(false);
     const [permissionsDialogContent, setPermissionsDialogContent] = useState(null);
+    const [, { show, hide }] = useLoadingDialogActions();
 
     const getCameraRollPermission = async ({ shouldAsk }) => {
         if (!shouldAsk) {
@@ -37,6 +49,7 @@ export const useImagePicker = ({
             status,
             canAskAgain
         } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
         if (status === 'granted') {
             return true;
         }
@@ -56,6 +69,7 @@ export const useImagePicker = ({
 
     const getCameraPermission = async () => {
         const { status, canAskAgain } = await ImagePicker.requestCameraPermissionsAsync();
+
         if (status === 'granted') {
             return true;
         }
@@ -74,10 +88,11 @@ export const useImagePicker = ({
     };
 
     const pickFromLibrary = async () => {
+        OS.isAndroid() && show();
         const hasCameraRollPermission = await getCameraRollPermission({
-            shouldAsk: Platform.OS === 'android' || Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10
+            shouldAsk: OS.isAndroid() || OS.isIOS() === 'ios' && parseInt(OS.version(), 10) >= 10
         });
-
+        OS.isAndroid() && hide();
         if (!hasCameraRollPermission) {
             return;
         }
@@ -96,14 +111,17 @@ export const useImagePicker = ({
     };
 
     const pickFromCamera = async () => {
+        OS.isAndroid() && show();
         const hasCameraRollPermission = await getCameraRollPermission({
-            shouldAsk: Platform.OS === 'android' || Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10
+            shouldAsk: OS.isAndroid() || OS.isIOS() === 'ios' && parseInt(OS.version(), 10) >= 10
         });
         if (!hasCameraRollPermission) {
+            OS.isAndroid() && hide();
             return;
         }
 
         const hasCameraPermission = await getCameraPermission();
+        OS.isAndroid() && hide();
         if (!hasCameraPermission) {
             return;
         }

@@ -10,7 +10,7 @@ iOS|Android|Web|
 <img title="video" src="https://github.com/codexplorer-io/expo-image-picker/blob/main/samples/video.gif?raw=true">
 
 ## Prerequisites
-Module requires installation and setup of https://github.com/codexplorer-io/expo-loading-dialog within the project.
+Module requires installation and setup of <a href="https://github.com/codexplorer-io/expo-loading-dialog" target="_blank">@codexporer.io/expo-loading-dialog</a> within the project.
 
 ## Usage
 ```javascript

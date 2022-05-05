@@ -14,6 +14,9 @@ const DialogTitle = Dialog.Title;
 const DialogContent = Dialog.Content;
 const DialogActions = Dialog.Actions;
 
+let isCameraRollPermissionGranted = false;
+let isCameraPermissionGranted = false;
+
 export const useImagePicker = ({
     mediaTypes,
     allowsEditing,
@@ -45,12 +48,17 @@ export const useImagePicker = ({
             return true;
         }
 
+        if (isCameraRollPermissionGranted) {
+            return true;
+        }
+
         const {
             status,
             canAskAgain
         } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (status === 'granted') {
+            isCameraRollPermissionGranted = true;
             return true;
         }
 
@@ -68,9 +76,14 @@ export const useImagePicker = ({
     };
 
     const getCameraPermission = async () => {
+        if (isCameraPermissionGranted) {
+            return true;
+        }
+
         const { status, canAskAgain } = await ImagePicker.requestCameraPermissionsAsync();
 
         if (status === 'granted') {
+            isCameraPermissionGranted = true;
             return true;
         }
 

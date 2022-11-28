@@ -120,7 +120,7 @@ export const useImagePicker = ({
             videoExportPreset
         });
 
-        !result.cancelled && onPick(result);
+        !result.canceled && onPick(result);
     };
 
     const pickFromCamera = async () => {
@@ -149,7 +149,7 @@ export const useImagePicker = ({
             videoExportPreset
         });
 
-        !result.cancelled && onPick(result);
+        !result.canceled && onPick(result);
     };
 
     const onDismissPermissionsDialog = () => {

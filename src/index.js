@@ -151,17 +151,26 @@ export const useImagePicker = ({
             return;
         }
 
-        const result = await ImagePicker.launchCameraAsync({
-            mediaTypes,
-            allowsEditing,
-            aspect,
-            quality,
-            base64,
-            exif,
-            videoExportPreset
-        });
+        try {
+            onBeforePick?.();
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes,
+                allowsEditing,
+                aspect,
+                quality,
+                base64,
+                exif,
+                videoExportPreset
+            });
 
-        !result.canceled && onPick(result);
+            if (result.canceled) {
+                onPickCancel?.();
+            } else {
+                onPick(result);
+            }
+        } catch (error) {
+            onPickError?.(error);
+        }
     };
 
     const onDismissPermissionsDialog = () => {

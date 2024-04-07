@@ -73,7 +73,7 @@ quality|specify the quality of compression, from 0 to 1. 0 means compress for sm
 base64|whether to also include the image data in Base64 format|
 exif|whether to also include the EXIF data for the image. On iOS the EXIF data does not include GPS tags in the camera case|
 videoExportPreset|available on **iOS 11+ only**, but **deprecated**. Specify preset which will be used to compress selected video (<a href="https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickervideoexportpreset" target="_blank">ImagePicker.VideoExportPreset</a>) (default: ImagePicker.VideoExportPreset.Passthrough)|
-onBeforePick|callback invoked when picker is open|
+onBeforePick|optional callback invoked when picker is open|
 onPick|callback invoked when image is selected. When the chosen item is an image, calback will be invoked with `{ canceled: false, assets: [{ type: 'image', uri, width, height, exif, base64 }] }`; when the item is a video, calback will be invoked with `{ canceled: false, assets: [{ type: 'video', uri, width, height, duration }] }`|
-onPickCancel|callback invoked if pick operation was canceled (mostly by the user)|
-onPickError|callback invoked if there was an error during the pick operation. Takes the `error` object as an argument.|
+onPickCancel|optional callback invoked if pick operation was canceled (mostly by the user)|
+onPickError|optional callback invoked if there was an error during the pick operation. Takes the `error` object as an argument.|

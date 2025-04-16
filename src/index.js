@@ -17,9 +17,15 @@ const DialogActions = Dialog.Actions;
 let isCameraRollPermissionGranted = false;
 let isCameraPermissionGranted = false;
 
+export const MediaType = {
+    Images: 'images',
+    Videos: 'videos'
+};
+
 export const useImagePicker = ({
     mediaTypes,
     allowsEditing,
+    allowsMultipleSelection,
     aspect,
     quality,
     base64,
@@ -118,6 +124,7 @@ export const useImagePicker = ({
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes,
                 allowsEditing,
+                allowsMultipleSelection,
                 aspect,
                 quality,
                 base64,
@@ -156,6 +163,7 @@ export const useImagePicker = ({
             const result = await ImagePicker.launchCameraAsync({
                 mediaTypes,
                 allowsEditing,
+                allowsMultipleSelection,
                 aspect,
                 quality,
                 base64,

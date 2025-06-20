@@ -14,8 +14,7 @@ Module requires installation and setup of <a href="https://github.com/codexplore
 
 ## Usage
 ```javascript
-import { useImagePicker } from '@codexporer.io/expo-image-picker';
-import * as ImagePicker from 'expo-image-picker';
+import { MediaType, useImagePicker } from '@codexporer.io/expo-image-picker';
 ...
 
 export const MyComponent = () => {
@@ -25,7 +24,7 @@ export const MyComponent = () => {
         pickFromCamera,
         renderPermissionDialog
     } = useImagePicker({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: [MediaType.Images],
         allowsEditing: true,
         aspect: [1, 1],
         onBeforePick: () => {
@@ -66,7 +65,7 @@ Takes options and returns `pickFromLibrary` (used to pick an image from device l
 ### Options
 option|description|
 -|-|
-mediaTypes|choose what type of media to pick (<a href="https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickermediatypeoptions" target="_blank">ImagePicker.MediaTypeOptions</a>) (default: ImagePicker.MediaTypeOptions.Images)|
+mediaTypes|required, array of media types to pick (MediaType.Images, MediaType.Videos)|
 allowsEditing|whether to show a UI to edit the image/video after it is picked. Images: On Android the user can crop and rotate the image and on iOS simply crop it. Videos: On iOS user can trim the video (default: false)|
 aspect|an array with two entries [x, y] specifying the aspect ratio to maintain if the user is allowed to edit the image (by passing allowsEditing: true). This is only applicable on Android, since on iOS the crop rectangle is always a square|
 quality|specify the quality of compression, from 0 to 1. 0 means compress for small size, 1 means compress for maximum quality|

@@ -1,78 +1,97 @@
-# expo-image-picker
-Image picker component for react-native & expo. Wrapper around <a href="https://docs.expo.dev/versions/latest/sdk/imagepicker/" target="_blank">expo-image-picker</a>.
+# `@codexporer.io/expo-image-picker`
 
-## Platform Compatibility
-iOS|Android|Web|
--|-|-|
-✅|✅|❌|
-
-## Samples
-<img title="video" src="https://github.com/codexplorer-io/expo-image-picker/blob/main/samples/video.gif?raw=true">
+Media and photo picking hook for Expo and React Native applications with customizable, themed permission dialogs. Supports both Expo Router and React Navigation.
 
 ## Prerequisites
-Module requires installation and setup of <a href="https://github.com/codexplorer-io/expo-loading-dialog" target="_blank">@codexporer.io/expo-loading-dialog</a> within the project.
 
-## Usage
-```javascript
-import { MediaType, useImagePicker } from '@codexporer.io/expo-image-picker';
-...
+Ensure `expo-image-picker` is installed in your project root or workspace:
 
-export const MyComponent = () => {
-    const [imageSource, setImageSource] = useState(null);
-    const {
-        pickFromLibrary,
-        pickFromCamera,
-        renderPermissionDialog
-    } = useImagePicker({
-        mediaTypes: [MediaType.Images],
-        allowsEditing: true,
-        aspect: [1, 1],
-        onBeforePick: () => {
-            // Invoked before pick, when picker is open
-        },
-        onPick: result => setImageSource(result),
-        onPickCancel: () => {
-            // Invoked if pick operation has been canceled
-        },
-        onPickError: error => {
-            // Invoked if there was an error during pick operation
-        }
-    });
-    ...
-    
-    return (
-        <>
-            <Button onPress={pickFromLibrary}>Choose from Library</Button>
-            <Button onPress={pickFromCamera}>Take Picture</Button>
-            <Image
-                source={imageSource}
-                resizeMode='contain'
-            />
-            {renderPermissionDialog()}
-        </>
-    );
-};
+```bash
+npx expo install expo-image-picker
 ```
 
-## Exports
-symbol|description|
--|-|
-useImagePicker|hook used for image selection|
+## Theme & Provider Setup
 
-## useImagePicker
-Takes options and returns `pickFromLibrary` (used to pick an image from device library), `pickFromCamera` (used to take a photo via device camera) and renderPermissionDialog (used to render permissions dialog with information about denied permissions) functions.
+Wrap your application root inside `ImagePickerProvider` and supply a mandatory `theme` object.
 
-### Options
-option|description|
--|-|
-mediaTypes|required, array of media types to pick (MediaType.Images, MediaType.Videos)|
-allowsEditing|whether to show a UI to edit the image/video after it is picked. Images: On Android the user can crop and rotate the image and on iOS simply crop it. Videos: On iOS user can trim the video (default: false)|
-aspect|an array with two entries [x, y] specifying the aspect ratio to maintain if the user is allowed to edit the image (by passing allowsEditing: true). This is only applicable on Android, since on iOS the crop rectangle is always a square|
-quality|specify the quality of compression, from 0 to 1. 0 means compress for small size, 1 means compress for maximum quality|
-base64|whether to also include the image data in Base64 format|
-exif|whether to also include the EXIF data for the image. On iOS the EXIF data does not include GPS tags in the camera case|
-videoExportPreset|available on **iOS 11+ only**, but **deprecated**. Specify preset which will be used to compress selected video (<a href="https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickervideoexportpreset" target="_blank">ImagePicker.VideoExportPreset</a>) (default: ImagePicker.VideoExportPreset.Passthrough)|
-onBeforePick|optional callback invoked when picker is open|
-onPick|callback invoked when image is selected. When the chosen item is an image, calback will be invoked with `{ canceled: false, assets: [{ type: 'image', uri, width, height, exif, base64 }] }`; when the item is a video, calback will be invoked with `{ canceled: false, assets: [{ type: 'video', uri, width, height, duration }] }`|
-onPickCancel|optional callback invoked if pick operation was canceled (mostly by the user)|
-onPickError|optional callback invoked if there was an error during the pick operation. Takes the `error` object as an argument.|
+### `ImagePickerTheme` Interface
+
+```typescript
+interface ImagePickerTheme {
+  colors: {
+    dialogBackground: string;      // Modal container background
+    dialogTitle: string;           // Modal title text color ("Access Required")
+    dialogMessage: string;         // Modal message text color
+    modalButtonText: string;       // Modal button text color ("Ok")
+    modalButtonBackground: string; // Modal button background color
+    modalButtonBorder: string;     // Modal button border color
+    overlayBackground: string;    // Backdrop overlay background color
+  };
+}
+```
+
+### Setup Example
+
+```tsx
+import React, { useMemo } from 'react';
+import { ImagePickerProvider, ImagePickerTheme } from '@codexporer.io/expo-image-picker';
+
+export function AppProviders({ children }) {
+  const imagePickerTheme = useMemo<ImagePickerTheme>(() => ({
+    colors: {
+      dialogBackground: '#ffffff',
+      dialogTitle: '#18181b',
+      dialogMessage: '#71717a',
+      modalButtonText: '#6366f1',
+      modalButtonBackground: '#f4f4f5',
+      modalButtonBorder: '#e4e4e7',
+      overlayBackground: 'rgba(0, 0, 0, 0.5)'
+    }
+  }), []);
+
+  return (
+    <ImagePickerProvider theme={imagePickerTheme}>
+      {children}
+    </ImagePickerProvider>
+  );
+}
+```
+
+## Hook Usage
+
+```tsx
+import React from 'react';
+import { View, Button } from 'react-native';
+import { useImagePicker, MediaType } from '@codexporer.io/expo-image-picker';
+
+export function AvatarPickerScreen() {
+  const { pickFromLibrary, pickFromCamera, renderPermissionDialog } = useImagePicker({
+    mediaTypes: MediaType.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.8,
+    onPick: (result) => {
+      if (!result.canceled && result.assets?.[0]) {
+        console.log('Picked photo URI:', result.assets[0].uri);
+      }
+    },
+    onPickError: (error) => {
+      console.error('Photo pick error:', error);
+    }
+  });
+
+  return (
+    <View>
+      <Button title="Choose from Library" onPress={pickFromLibrary} />
+      <Button title="Take Photo" onPress={pickFromCamera} />
+      {renderPermissionDialog()}
+    </View>
+  );
+}
+```
+
+### Expo Router Support
+
+```tsx
+import { useImagePickerRouter } from '@codexporer.io/expo-image-picker';
+```

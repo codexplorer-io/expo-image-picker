@@ -1,21 +1,33 @@
-import React, { useState } from 'react';
-import { di } from 'react-magnetic-di';
+import React, { createContext, useContext, useState } from 'react';
+import {
+    Modal,
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    TouchableWithoutFeedback
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { OS } from '@codexporer.io/expo-device';
 import { useLoadingDialogActions } from '@codexporer.io/expo-loading-dialog';
-import {
-    Dialog,
-    Button,
-    Paragraph,
-    Portal
-} from 'react-native-paper';
 
-const DialogTitle = Dialog.Title;
-const DialogContent = Dialog.Content;
-const DialogActions = Dialog.Actions;
+const ImagePickerThemeContext = createContext(null);
 
-let isCameraRollPermissionGranted = false;
-let isCameraPermissionGranted = false;
+export const ImagePickerProvider = ({ children, theme }) => {
+    return (
+        <ImagePickerThemeContext.Provider value={theme}>
+            {children}
+        </ImagePickerThemeContext.Provider>
+    );
+};
+
+const useImagePickerTheme = () => {
+    const context = useContext(ImagePickerThemeContext);
+    if (!context) {
+        throw new Error('useImagePickerTheme must be used within an ImagePickerProvider with a mandatory theme prop.');
+    }
+    return context;
+};
 
 export const MediaType = {
     Images: 'images',
@@ -35,29 +47,28 @@ export const useImagePicker = ({
     onPick,
     onPickCancel,
     onPickError
-}) => {
-    di(
-        Button,
-        Dialog,
-        DialogActions,
-        DialogContent,
-        DialogTitle,
-        Paragraph,
-        Portal,
-        useLoadingDialogActions,
-        useState
-    );
-
+} = {}) => {
     const [isPermissionsDialogVisible, setIsPermissionsDialogVisible] = useState(false);
     const [permissionsDialogContent, setPermissionsDialogContent] = useState(null);
-    const [, { show, hide }] = useLoadingDialogActions();
+    const [, loadingDialogActions] = useLoadingDialogActions();
+
+    const theme = useImagePickerTheme();
+    const { colors } = theme;
+
+    const showLoading = () => {
+        if (OS.isAndroid() && loadingDialogActions?.show) {
+            loadingDialogActions.show();
+        }
+    };
+
+    const hideLoading = () => {
+        if (OS.isAndroid() && loadingDialogActions?.hide) {
+            loadingDialogActions.hide();
+        }
+    };
 
     const getCameraRollPermission = async ({ shouldAsk }) => {
         if (!shouldAsk) {
-            return true;
-        }
-
-        if (isCameraRollPermissionGranted) {
             return true;
         }
 
@@ -67,54 +78,40 @@ export const useImagePicker = ({
         } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (status === 'granted') {
-            isCameraRollPermissionGranted = true;
             return true;
         }
 
         setPermissionsDialogContent(
-            <Paragraph>
-                {
-                    canAskAgain ?
-                        'Selecting a media file from the library requires media library access. Try to select media file from the library again and allow application to access your media library.' :
-                        'Selecting a media file from the library requires media library access. Allow aplication to access the media library in phone settings and select media file afterwards.'
-                }
-            </Paragraph>
+            canAskAgain ?
+                'Selecting a media file from the library requires media library access. Try to select media file from the library again and allow application to access your media library.' :
+                'Selecting a media file from the library requires media library access. Allow application to access the media library in phone settings and select media file afterwards.'
         );
         setIsPermissionsDialogVisible(true);
         return false;
     };
 
     const getCameraPermission = async () => {
-        if (isCameraPermissionGranted) {
-            return true;
-        }
-
         const { status, canAskAgain } = await ImagePicker.requestCameraPermissionsAsync();
 
         if (status === 'granted') {
-            isCameraPermissionGranted = true;
             return true;
         }
 
         setPermissionsDialogContent(
-            <Paragraph>
-                {
-                    canAskAgain ?
-                        'Taking a photo with the camera requires phone camera access. Try to take a photo again and allow application to access device camera.' :
-                        'Taking a photo with the camera requires phone camera access. Allow aplication to access device camera in phone settings and take a photo again afterwards.'
-                }
-            </Paragraph>
+            canAskAgain ?
+                'Taking a photo with the camera requires phone camera access. Try to take a photo again and allow application to access device camera.' :
+                'Taking a photo with the camera requires phone camera access. Allow application to access device camera in phone settings and take a photo again afterwards.'
         );
         setIsPermissionsDialogVisible(true);
         return false;
     };
 
     const pickFromLibrary = async () => {
-        OS.isAndroid() && show();
+        showLoading();
         const hasCameraRollPermission = await getCameraRollPermission({
-            shouldAsk: OS.isAndroid() || OS.isIOS() === 'ios' && parseInt(OS.version(), 10) >= 10
+            shouldAsk: OS.isAndroid() || (OS.isIOS() && parseInt(OS.version(), 10) >= 10)
         });
-        OS.isAndroid() && hide();
+        hideLoading();
         if (!hasCameraRollPermission) {
             return;
         }
@@ -122,7 +119,7 @@ export const useImagePicker = ({
         try {
             onBeforePick?.();
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes,
+                mediaTypes: mediaTypes === 'images' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
                 allowsEditing,
                 allowsMultipleSelection,
                 aspect,
@@ -135,7 +132,7 @@ export const useImagePicker = ({
             if (result.canceled) {
                 onPickCancel?.();
             } else {
-                onPick(result);
+                onPick?.(result);
             }
         } catch (error) {
             onPickError?.(error);
@@ -143,17 +140,17 @@ export const useImagePicker = ({
     };
 
     const pickFromCamera = async () => {
-        OS.isAndroid() && show();
+        showLoading();
         const hasCameraRollPermission = await getCameraRollPermission({
-            shouldAsk: OS.isAndroid() || OS.isIOS() === 'ios' && parseInt(OS.version(), 10) >= 10
+            shouldAsk: OS.isAndroid() || (OS.isIOS() && parseInt(OS.version(), 10) >= 10)
         });
         if (!hasCameraRollPermission) {
-            OS.isAndroid() && hide();
+            hideLoading();
             return;
         }
 
         const hasCameraPermission = await getCameraPermission();
-        OS.isAndroid() && hide();
+        hideLoading();
         if (!hasCameraPermission) {
             return;
         }
@@ -161,7 +158,7 @@ export const useImagePicker = ({
         try {
             onBeforePick?.();
             const result = await ImagePicker.launchCameraAsync({
-                mediaTypes,
+                mediaTypes: mediaTypes === 'images' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
                 allowsEditing,
                 allowsMultipleSelection,
                 aspect,
@@ -174,7 +171,7 @@ export const useImagePicker = ({
             if (result.canceled) {
                 onPickCancel?.();
             } else {
-                onPick(result);
+                onPick?.(result);
             }
         } catch (error) {
             onPickError?.(error);
@@ -186,26 +183,43 @@ export const useImagePicker = ({
     };
 
     const renderPermissionDialog = () => (
-        <Portal>
-            <Dialog
-                visible={isPermissionsDialogVisible}
-                onDismiss={onDismissPermissionsDialog}
-            >
-                <DialogTitle>
-                    Access Required
-                </DialogTitle>
-                <DialogContent>
-                    {permissionsDialogContent}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onPress={onDismissPermissionsDialog}
-                    >
-                        Ok
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Portal>
+        <Modal
+            visible={isPermissionsDialogVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={onDismissPermissionsDialog}
+        >
+            <TouchableWithoutFeedback onPress={onDismissPermissionsDialog}>
+                <View style={[styles.overlay, { backgroundColor: colors.overlayBackground }]}>
+                    <TouchableWithoutFeedback>
+                        <View style={[styles.dialogContainer, { backgroundColor: colors.dialogBackground, shadowColor: colors.shadowColor }]}>
+                            <Text style={[styles.title, { color: colors.dialogTitle }]}>
+                                Access Required
+                            </Text>
+                            <Text style={[styles.message, { color: colors.dialogMessage }]}>
+                                {permissionsDialogContent}
+                            </Text>
+                            <View style={styles.actionsContainer}>
+                                <TouchableOpacity
+                                    onPress={onDismissPermissionsDialog}
+                                    style={[
+                                        styles.button,
+                                        {
+                                            backgroundColor: colors.modalButtonBackground,
+                                            borderColor: colors.modalButtonBorder
+                                        }
+                                    ]}
+                                >
+                                    <Text style={[styles.buttonText, { color: colors.modalButtonText }]}>
+                                        Ok
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </View>
+            </TouchableWithoutFeedback>
+        </Modal>
     );
 
     return {
@@ -214,3 +228,48 @@ export const useImagePicker = ({
         renderPermissionDialog
     };
 };
+
+export const useImagePickerRouter = useImagePicker;
+
+const styles = StyleSheet.create({
+    overlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24
+    },
+    dialogContainer: {
+        width: '100%',
+        maxWidth: 400,
+        borderRadius: 16,
+        padding: 24,
+        elevation: 5,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 12
+    },
+    message: {
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: 20
+    },
+    actionsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end'
+    },
+    button: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 8,
+        borderWidth: 1
+    },
+    buttonText: {
+        fontSize: 16,
+        fontWeight: '600'
+    }
+});

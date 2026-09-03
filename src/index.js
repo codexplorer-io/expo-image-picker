@@ -50,20 +50,20 @@ export const useImagePicker = ({
 } = {}) => {
     const [isPermissionsDialogVisible, setIsPermissionsDialogVisible] = useState(false);
     const [permissionsDialogContent, setPermissionsDialogContent] = useState(null);
-    const [, loadingDialogActions] = useLoadingDialogActions();
+    const [, { show: showLoadingDialog, hide: hideLoadingDialog }] = useLoadingDialogActions();
 
     const theme = useImagePickerTheme();
     const { colors } = theme;
 
     const showLoading = () => {
-        if (OS.isAndroid() && loadingDialogActions?.show) {
-            loadingDialogActions.show();
+        if (OS.isAndroid()) {
+            showLoadingDialog?.();
         }
     };
 
     const hideLoading = () => {
-        if (OS.isAndroid() && loadingDialogActions?.hide) {
-            loadingDialogActions.hide();
+        if (OS.isAndroid()) {
+            hideLoadingDialog?.();
         }
     };
 

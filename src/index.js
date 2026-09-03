@@ -57,13 +57,13 @@ export const useImagePicker = ({
 
     const showLoading = () => {
         if (OS.isAndroid()) {
-            showLoadingDialog?.();
+            showLoadingDialog();
         }
     };
 
     const hideLoading = () => {
         if (OS.isAndroid()) {
-            hideLoadingDialog?.();
+            hideLoadingDialog();
         }
     };
 

@@ -13,3 +13,4 @@
 - Always check `result.canceled` before accessing `result.assets`.
 - Ensure `{renderPermissionDialog()}` is included in component render output.
 - Pass `theme` with required `colors` object (`dialogBackground`, `dialogTitle`, `dialogMessage`, `modalButtonText`, `modalButtonBackground`, `modalButtonBorder`, `overlayBackground`).
+- **Memoize Theme Objects**: Wrap inline `theme` objects in `useMemo` when rendered inside React components (or define statically outside component body) to preserve reference stability.

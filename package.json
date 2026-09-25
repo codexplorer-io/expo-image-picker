@@ -8,6 +8,7 @@
     "react-native": "*",
     "expo-image-picker": "*",
     "@codexporer.io/expo-device": "*",
-    "@codexporer.io/expo-loading-dialog": "*"
+    "@codexporer.io/expo-loading-dialog": "*",
+    "@codexporer.io/expo-message-dialog": "*"
   }
 }

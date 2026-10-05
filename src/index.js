@@ -22,8 +22,8 @@ export const useImagePicker = ({
     onPickCancel,
     onPickError
 } = {}) => {
-    const [, { show: showLoadingDialog, hide: hideLoadingDialog }] = useLoadingDialogActions();
-    const [, { open: openMessageDialog }] = useMessageDialogActions();
+    const { show: showLoadingDialog, hide: hideLoadingDialog } = useLoadingDialogActions();
+    const { open: openMessageDialog } = useMessageDialogActions();
 
     const showLoading = () => {
         if (OS.isAndroid()) {
@@ -37,7 +37,7 @@ export const useImagePicker = ({
         }
     };
 
-    const showPermissionsDialog = (message) => {
+    const showPermissionsDialog = message => {
         openMessageDialog({
             title: 'Access Required',
             message,
@@ -95,7 +95,9 @@ export const useImagePicker = ({
         try {
             onBeforePick?.();
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: mediaTypes === 'images' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
+                mediaTypes: mediaTypes === MediaType.Images ?
+                    MediaType.Images :
+                    [MediaType.Images, MediaType.Videos],
                 allowsEditing,
                 allowsMultipleSelection,
                 aspect,
@@ -134,7 +136,9 @@ export const useImagePicker = ({
         try {
             onBeforePick?.();
             const result = await ImagePicker.launchCameraAsync({
-                mediaTypes: mediaTypes === 'images' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.All,
+                mediaTypes: mediaTypes === MediaType.Images ?
+                    MediaType.Images :
+                    [MediaType.Images, MediaType.Videos],
                 allowsEditing,
                 allowsMultipleSelection,
                 aspect,

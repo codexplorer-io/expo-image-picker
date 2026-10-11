@@ -10,6 +10,13 @@ description: Instructions for using @codexporer.io/expo-image-picker for picking
 
 ---
 
+## When to Use
+- Selecting photos or videos from the user's media library.
+- Capturing new photos or videos with the camera.
+- Requiring automatic permission request dialogs without manual boilerplate checks.
+
+---
+
 ## Required Setup
 
 ### Prerequisites in Component Tree
@@ -97,7 +104,7 @@ MediaType.Videos // 'videos'
 
 ---
 
-## Mandatory Guidelines
+## Critical Rules & Guidelines
 
 1. **Prerequisite Dialogs**: Always ensure `<MessageDialog />` and `<LoadingDialog />` are mounted at the app root inside `ThemeProvider`.
 2. **Never Call `renderPermissionDialog`**: Do not look for or render a permission dialog component in JSX; the package delegates permission modals to `@codexporer.io/expo-message-dialog`.

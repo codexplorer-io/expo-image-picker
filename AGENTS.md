@@ -1,6 +1,6 @@
 # AGENTS.md — `@codexporer.io/expo-image-picker`
 
-## Package Summary
+## Package Overview
 
 `@codexporer.io/expo-image-picker` is a lightweight Expo ImagePicker wrapper. It handles camera roll and camera permission flows automatically. When permission is denied, it opens a dialog via `@codexporer.io/expo-message-dialog`. Theme tokens are read from `@codexporer.io/expo-app-theme`.
 
@@ -17,4 +17,4 @@
 - Always check `result.canceled` before accessing `result.assets` in `onPick`.
 - `<MessageDialog />` from `@codexporer.io/expo-message-dialog` **must be mounted** somewhere in the app tree (e.g. in the root layout) for permission dialogs to render.
 - `ThemeProvider` from `@codexporer.io/expo-app-theme` **must be mounted** above any component that calls `useImagePicker`.
-- On Android, a loading dialog is shown while permissions are being requested. Ensure the loading dialog provider from `@codexporer.io/expo-loading-dialog` is also mounted.
+- On Android, a loading dialog is shown while permissions are being requested. Ensure `<LoadingDialog />` from `@codexporer.io/expo-loading-dialog` is also mounted.

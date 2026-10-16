@@ -10,35 +10,45 @@ description: Instructions for using @codexporer.io/expo-image-picker for picking
 
 ---
 
+## Peer Dependencies
+
+All 6 peer dependencies are required and must be installed in consuming projects (none are optional):
+- `react`: `*`
+- `react-native`: `*`
+- `expo-image-picker`: `*`
+- `@codexporer.io/expo-device`: `*`
+- `@codexporer.io/expo-loading-dialog`: `*`
+- `@codexporer.io/expo-message-dialog`: `*`
+
+---
+
 ## When to Use
 - Selecting photos or videos from the user's media library.
-- Capturing new photos or videos with the camera.
-- Requiring automatic permission request dialogs without manual boilerplate checks.
+- Capturing new photos or videos with the device camera.
+- Requiring automatic permission request dialogs and error alerts without boilerplate.
 
 ---
 
 ## Required Setup
 
 ### Prerequisites in Component Tree
-Your application must mount the following near the top of the component tree (e.g. in `_layout.tsx` or `App.tsx`):
+Your application must mount the following near the top of the component tree (wrapped in `<ThemeProvider>` from `@codexporer.io/expo-app-theme`):
 
-1. **`ThemeProvider`** (from `@codexporer.io/expo-app-theme` or app provider).
-2. **`<MessageDialog />`** (from `@codexporer.io/expo-message-dialog`): Renders the permission denial dialog automatically.
-3. **`<LoadingDialog />`** (from `@codexporer.io/expo-loading-dialog`): Used during Android media processing.
+1. **`<MessageDialog />`** (from `@codexporer.io/expo-message-dialog`): Renders permission denial alerts automatically.
+2. **`<LoadingDialog />`** (from `@codexporer.io/expo-loading-dialog`): Displayed on Android during media permission checks to prevent duplicate actions.
 
-> **NOTE:** Do **not** use `ImagePickerProvider` (it does not exist). No provider wrapper is required for this package.
+> **NOTE:** Do **not** use `ImagePickerProvider` (it does not exist). The hook can be used anywhere in your components.
 
 ---
 
 ## Hook Usage (`useImagePicker`)
 
-The hook returns `{ pickFromLibrary, pickFromCamera }`. Permission dialogs are handled automatically by `@codexporer.io/expo-message-dialog` when access is denied:
+The hook returns `{ pickFromLibrary, pickFromCamera }`. Permission dialogs are triggered automatically via `@codexporer.io/expo-message-dialog` when access is denied:
 
 ```tsx
 import React from 'react';
-import { View } from 'react-native';
+import { View, Button } from 'react-native';
 import { useImagePicker, MediaType } from '@codexporer.io/expo-image-picker';
-import { Button } from '@codexporer.io/expo-button';
 
 export function AvatarPickerScreen() {
   const { pickFromLibrary, pickFromCamera } = useImagePicker({
@@ -46,6 +56,9 @@ export function AvatarPickerScreen() {
     allowsEditing: true,
     aspect: [1, 1],
     quality: 0.8,
+    onBeforePick: () => {
+      console.log('Opening picker...');
+    },
     onPick: (result) => {
       if (!result.canceled && result.assets?.[0]?.uri) {
         console.log('Selected image URI:', result.assets[0].uri);
@@ -75,9 +88,10 @@ export function AvatarPickerScreen() {
 ### `useImagePicker(options?: UseImagePickerOptions): UseImagePickerReturn`
 
 #### Options (`UseImagePickerOptions`)
+
 | Option | Type | Description |
 | :--- | :--- | :--- |
-| `mediaTypes` | `MediaType.Images \| MediaType.Videos \| string` | Filter media type |
+| `mediaTypes` | `MediaType.Images \| MediaType.Videos \| string` | Filter media type. If `MediaType.Images` ('images'), only images are allowed; otherwise defaults to `[MediaType.Images, MediaType.Videos]`. |
 | `allowsEditing` | `boolean` | Enable in-app crop / edit interface after selection |
 | `allowsMultipleSelection` | `boolean` | Allow selecting multiple assets (library only) |
 | `aspect` | `[number, number]` | Aspect ratio tuple `[x, y]` when `allowsEditing` is true |
@@ -91,12 +105,14 @@ export function AvatarPickerScreen() {
 | `onPickError` | `(error: Error) => void` | Invoked on error |
 
 #### Return Value (`UseImagePickerReturn`)
+
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `pickFromLibrary` | `() => Promise<void>` | Launches system photo library picker |
-| `pickFromCamera` | `() => Promise<void>` | Launches system camera |
+| `pickFromLibrary` | `() => Promise<void>` | Launches system photo library picker after permission check |
+| `pickFromCamera` | `() => Promise<void>` | Launches system camera after permission checks |
 
 ### `MediaType`
+
 ```ts
 MediaType.Images // 'images'
 MediaType.Videos // 'videos'
@@ -106,7 +122,11 @@ MediaType.Videos // 'videos'
 
 ## Critical Rules & Guidelines
 
-1. **Prerequisite Dialogs**: Always ensure `<MessageDialog />` and `<LoadingDialog />` are mounted at the app root inside `ThemeProvider`.
+1. **Mount Prerequisite Dialogs**: Always ensure `<MessageDialog />` and `<LoadingDialog />` are mounted in the app tree wrapped in `ThemeProvider`.
 2. **Never Call `renderPermissionDialog`**: Do not look for or render a permission dialog component in JSX; the package delegates permission modals to `@codexporer.io/expo-message-dialog`.
 3. **Handle Canceled Assets**: Always check `if (!result.canceled && result.assets?.[0]?.uri)` before processing picked files.
-4. **Use `MediaType` Constant**: Use `MediaType.Images` or `MediaType.Videos` instead of raw string literals.
+4. **Platform Specifics**:
+   - Library permission is requested on Android and iOS >= 10 (`OS.isAndroid() || (OS.isIOS() && parseInt(OS.version(), 10) >= 10)`).
+   - Camera permission check is preceded by media library check.
+   - `<LoadingDialog />` is automatically activated on Android during permission verification.
+5. **All 6 Peer Dependencies Required**: Consuming applications must install all 6 peer dependencies without marking any as optional.
